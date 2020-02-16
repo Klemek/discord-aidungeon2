@@ -5,7 +5,7 @@ import aid2
 from datetime import datetime
 from dotenv import load_dotenv
 
-VERSION = "1.0-dev"
+VERSION = "1.0"
 t0 = datetime.now()
 
 # Loading token
