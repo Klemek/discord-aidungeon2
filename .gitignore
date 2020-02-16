@@ -1,3 +1,4 @@
 .idea
 .env
 aid2_cred.txt
+__pycache__
