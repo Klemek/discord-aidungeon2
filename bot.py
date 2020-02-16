@@ -93,6 +93,7 @@ async def on_message(message):
             return
 
         if message.content.lower().startswith('new story'):
+            del STORIES[mid]
             await new_story(mid, message)
             return
 
