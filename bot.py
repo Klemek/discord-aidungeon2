@@ -2,6 +2,7 @@ import os
 import traceback
 import discord
 import aid2
+import re
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -77,8 +78,8 @@ async def on_message(message):
         # story creation mode
         await new_story(mid, message)
 
-    if message.content.startswith(client.user.mention.replace('<@', '<@!')):
-        message.content = message.content[len(client.user.mention) + 1:].strip()
+    if client.user in message.mentions:
+        message.content = re.sub(r'<@[^>]+>', '', message.content).strip()
         debug(message, f"'{message.content}'")
 
         # Check if bot can respond on current channel or DM user
@@ -191,6 +192,10 @@ async def new_story(mid, message):
             else:
                 await message.channel.send(f'{message.author.mention}: Error during request')
                 del STORIES[mid]
+    try:
+        await message.delete()
+    except:
+        pass
 
 
 print(f"Current PID: {os.getpid()}")

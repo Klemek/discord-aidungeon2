@@ -2,3 +2,4 @@
 .env
 aid2_cred.txt
 __pycache__
+error_*
