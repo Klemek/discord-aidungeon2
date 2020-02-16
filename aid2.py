@@ -16,7 +16,10 @@ def init_session(cred_file_path):
     if not r.ok:
         print('/users', r.status_code, r.reason)
         return None
-    TOKEN = r.json()['accessToken']
+    try:
+        TOKEN = r.json()['accessToken']
+    except (ValueError, KeyError):
+        print(f'{URL}/users: invalid response: {r.content}')
 
 
 def read_config():
@@ -25,7 +28,14 @@ def read_config():
     if not r.ok:
         print('/sessions/*/config', r.status_code, r.reason)
     else:
-        CONFIG = r.json()
+        try:
+            CONFIG = r.json()
+        except ValueError:
+            print(f'{URL}/sessions/*/config: invalid response: {r.content}')
+
+
+def ready():
+    return TOKEN is not None
 
 
 def init_story(mode, character, name):
@@ -41,21 +51,29 @@ def init_story(mode, character, name):
         print('/sessions', r.status_code, r.reason)
         return None
     else:
-        r = r.json()
-        return r['id'], r['story'][0]['value']
+        try:
+            r = r.json()
+            return r['id'], r['story'][0]['value']
+        except (ValueError, KeyError, IndexError):
+            print(f'{URL}/sessions: invalid response: {r.content}')
+            return None, None
 
 
-def continue_story(id, text):
+def continue_story(story_id, text):
     data = {
         'text': text
     }
-    r = requests.post(f'{URL}/sessions/{id}/inputs', data, headers={'X-Access-Token': TOKEN})
+    r = requests.post(f'{URL}/sessions/{story_id}/inputs', data, headers={'X-Access-Token': TOKEN})
     if not r.ok:
-        print(f'/sessions/{id}/inputs', r.status_code, r.reason)
+        print(f'/sessions/{story_id}/inputs', r.status_code, r.reason)
         return None
     else:
-        r = r.json()
-        return r[-1]['value']
+        try:
+            r = r.json()
+            return r[-1]['value']
+        except (ValueError, KeyError, IndexError):
+            print(f'{URL}/sessions/{story_id}/inputs: {r.content}')
+            return None, None
 
 
 def command_line():
