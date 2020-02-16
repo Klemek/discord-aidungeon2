@@ -128,6 +128,10 @@ async def new_story(mid, message):
     story = STORIES[mid]
     if story['status'] == STATUS_ASKED:
         if message.content.strip().lower() == 'yes' or message.content.strip().lower() == 'new story':
+            try:
+                await message.delete()
+            except:
+                pass
             modes_names = list(MODES.keys())
             await story['response'].edit(content=f'{message.author.mention}\n'
                                                  f'\n'
@@ -148,6 +152,10 @@ async def new_story(mid, message):
         except ValueError:
             pass
         if mode in MODES:
+            try:
+                await message.delete()
+            except:
+                pass
             story['mode'] = mode
             characters = MODES[mode]
             await story['response'].edit(content=f'{message.author.mention}\n'
@@ -167,6 +175,10 @@ async def new_story(mid, message):
         except ValueError:
             pass
         if character in MODES[story['mode']]:
+            try:
+                await message.delete()
+            except:
+                pass
             story['character'] = character
             await story['response'].edit(content=f'{message.author.mention}\n'
                                                  f'Setting: *{story["mode"]}*\n'
@@ -183,6 +195,10 @@ async def new_story(mid, message):
                                              f'\n'
                                              f'**Generating story...**')
         async with message.channel.typing():
+            try:
+                await message.delete()
+            except:
+                pass
             story_id, result = aid2.init_story(story['mode'], story['character'], story['name'])
             await story['response'].delete()
             if result is not None:
@@ -192,10 +208,6 @@ async def new_story(mid, message):
             else:
                 await message.channel.send(f'{message.author.mention}: Error during request')
                 del STORIES[mid]
-    try:
-        await message.delete()
-    except:
-        pass
 
 
 print(f"Current PID: {os.getpid()}")
