@@ -4,7 +4,7 @@ URL = 'https://api.aidungeon.io'
 
 TOKEN = None
 CONFIG = None
-
+MAX_RERUN = 5
 
 def init_session(cred_file_path):
     global TOKEN
@@ -46,10 +46,14 @@ def init_story(mode, character, name):
         'customPrompt': None,
         'promptId': None
     }
-    r = requests.post(f'{URL}/sessions', data, headers={'X-Access-Token': TOKEN})
+    r = None
+    times = 0
+    while (r is None or r.status_code >= 500) and times < MAX_RERUN:
+        r = requests.post(f'{URL}/sessions', data, headers={'X-Access-Token': TOKEN})
+        times += 1
     if not r.ok:
         print('/sessions', r.status_code, r.reason)
-        return None
+        return None, None
     else:
         try:
             r = r.json()
@@ -63,10 +67,14 @@ def continue_story(story_id, text):
     data = {
         'text': text
     }
-    r = requests.post(f'{URL}/sessions/{story_id}/inputs', data, headers={'X-Access-Token': TOKEN})
+    r = None
+    times = 0
+    while (r is None or r.status_code >= 500) and times < MAX_RERUN:
+        r = requests.post(f'{URL}/sessions/{story_id}/inputs', data, headers={'X-Access-Token': TOKEN})
+        times += 1
     if not r.ok:
         print(f'/sessions/{story_id}/inputs', r.status_code, r.reason)
-        return None
+        return None, None
     else:
         try:
             r = r.json()
